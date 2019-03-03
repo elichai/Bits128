@@ -1,14 +1,22 @@
+#![no_std]
+use core::{fmt, ops};
 
 #[derive(Debug, Clone, Copy, Eq, PartialOrd, PartialEq, Ord, Default, Hash)]
-struct Bits128(u128);
+pub struct Bits128(u128);
 
 impl Bits128 {
-    const FIRST: u128 = 2^128;
+    const FIRST: u128 = 170141183460469231731687303715884105728; // 2.pow(127)
+    const BITS: [bool;2] = [false, true];
+
+    pub fn from_dec(dec: u128) -> Self {
+        Self(dec)
+    }
+
     pub fn last(&self) -> bool {
         self.0 & 1 == 1
     }
     pub fn first(&self) -> bool {
-        self.0 & Self::FIRST == 1
+        self.0 & Self::FIRST == Self::FIRST
     }
 
     pub fn at(&self, location: usize) -> bool {
@@ -20,7 +28,51 @@ impl Bits128 {
         let xor = 2u128.pow(location as u32);
         self.0 ^= xor;
     }
+
+    pub fn most_significant_location(&self) -> usize {
+        let mut s = *self;
+        for i in (0..128).rev() {
+            if s.first() {
+                return i;
+            }
+            s.0 =  s.0 << 1;
+        }
+        return core::usize::MAX;
+    }
+
+    pub fn arr(&self ) -> [u8; 128] {
+        let mut res = [0u8; 128];
+        let mut s = *self;
+        for i in (0..128).rev() {
+            res[i] = s.last() as u8;
+            s.0 = s.0 >> 1;
+        }
+        res
+    }
 }
+
+impl ops::Index<usize> for Bits128 {
+    type Output = bool;
+    fn index(&self, location: usize) -> &bool {
+        &Self::BITS[self.at(location) as usize]
+    }
+}
+
+
+impl fmt::Display for Bits128 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let significant = self.most_significant_location();
+        let mut s = self.0;
+        let location = 2u128.pow(significant as u32);
+        write!(f, "[")?;
+        for _ in 0..=significant {
+            write!(f, "{},", (s | location == s) as u8)?;
+            s = s << 1;
+        }
+        write!(f, "]")
+    }
+}
+
 
 
 
