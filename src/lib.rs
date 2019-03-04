@@ -12,7 +12,7 @@ use core::{fmt, ops};
 pub struct Bits128(u128);
 
 impl Bits128 {
-    const FIRST: u128 = 170141183460469231731687303715884105728; // 2.pow(127)
+    const FIRST: u128 = 1 << 127;
     const BITS: [bool;2] = [false, true];
 
     /// This creates the struct with all bits set to zero
@@ -61,8 +61,7 @@ impl Bits128 {
     /// assert!(bits.at(2));
     /// ```
     pub fn at(&self, location: usize) -> bool {
-        let or = 2u128.pow(location as u32);
-        self.0 | or == self.0
+        self.0 >> location & 1 == 1
     }
 
     /// Creates a struct using a u128 integer.
@@ -75,7 +74,7 @@ impl Bits128 {
     /// assert!(bits.at(10));
     /// ```
     pub fn flip(&mut self, location: usize)  {
-        let xor = 2u128.pow(location as u32);
+        let xor = 1 << location;
         self.0 ^= xor;
     }
 
@@ -110,7 +109,7 @@ impl fmt::Display for Bits128 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let significant = self.len();
         let mut s = self.0;
-        let location = 2u128.pow(significant as u32);
+        let location = 1 << significant;
         write!(f, "[")?;
         for _ in 0..=significant {
             write!(f, "{},", (s | location == s) as u8)?;
