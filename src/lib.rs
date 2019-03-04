@@ -31,25 +31,25 @@ impl Bits128 {
         Self(dec)
     }
 
-    /// Creates a struct using a u128 integer.
+    /// Return the first bit
     /// ## Examples
     /// ```rust
     /// # use bits128::Bits128;
     /// let bits = Bits128::from_dec(1025);
-    /// assert!(bits.last());
+    /// assert!(bits.last_bit());
     /// ```
-    pub fn last(&self) -> bool {
+    pub fn last_bit(&self) -> bool {
         self.0 & 1 == 1
     }
 
-    /// Creates a struct using a u128 integer.
+    /// Returns the last bit
     /// ## Examples
     /// ```rust
     /// # use bits128::Bits128;
     /// let bits = Bits128::from_dec(2*(2u128.pow(127)-1));
-    /// assert!(bits.first());
+    /// assert!(bits.first_bit());
     /// ```
-    pub fn first(&self) -> bool {
+    pub fn first_bit(&self) -> bool {
         self.0 & Self::FIRST == Self::FIRST
     }
 
@@ -88,7 +88,7 @@ impl Bits128 {
     pub fn len(&self) -> usize {
         let mut s = *self;
         for i in (0..128).rev() {
-            if s.first() {
+            if s.first_bit() {
                 return i;
             }
             s.0 =  s.0 << 1;
@@ -96,6 +96,22 @@ impl Bits128 {
         0
     }
 }
+
+impl Iterator for Bits128 {
+    type Item = bool;
+
+    fn next(&mut self) -> Option<bool> {
+        if self.0 == 0 {
+            None
+        } else {
+            let res = self.last_bit();
+            self.0 >>= 1;
+            Some(res)
+        }
+    }
+}
+
+
 
 impl ops::Index<usize> for Bits128 {
     type Output = bool;
@@ -161,9 +177,9 @@ mod tests {
     }
     #[test]
     fn test_last() {
-        assert!(Bits128(55).last());
-        assert!(Bits128(45678987621).last());
-        assert!(Bits128(657483957483957433).last());
+        assert!(Bits128(55).last_bit());
+        assert!(Bits128(45678987621).last_bit());
+        assert!(Bits128(657483957483957433).last_bit());
     }
 }
 
