@@ -9,10 +9,10 @@
 //! ```rust
 //! # use bits128::Bits128;
 //! let bits = Bits128::from_dec(1337);
-//! for (bit, c) in bits.enumarate() {
+//! for (c, bit) in bits.enumerate() {
 //!     if bit {
 //!         println!("the {}th bit is on", bit);
-//!     ]
+//!     }
 //! }
 //! ```
 
@@ -49,6 +49,7 @@ impl Bits128 {
     /// let bits = Bits128::from_dec(1025);
     /// assert!(bits.last_bit());
     /// ```
+    #[inline(always)]
     pub fn last_bit(&self) -> bool {
         self.0 & 1 == 1
     }
@@ -60,6 +61,7 @@ impl Bits128 {
     /// let bits = Bits128::from_dec(2*(2u128.pow(127)-1));
     /// assert!(bits.first_bit());
     /// ```
+    #[inline(always)]
     pub fn first_bit(&self) -> bool {
         self.0 & Self::FIRST == Self::FIRST
     }
@@ -70,7 +72,7 @@ impl Bits128 {
     /// # use bits128::Bits128;
     /// let bits = Bits128::from_dec(5);
     /// assert!(bits.at(2));
-    /// ```
+    #[inline(always)]
     pub fn at(&self, location: usize) -> bool {
         self.0 >> location & 1 == 1
     }
@@ -83,7 +85,7 @@ impl Bits128 {
     /// assert!(!bits.at(10));
     /// bits.flip(10);
     /// assert!(bits.at(10));
-    /// ```
+    #[inline(always)]
     pub fn flip(&mut self, location: usize)  {
         let xor = 1 << location;
         self.0 ^= xor;
@@ -126,6 +128,7 @@ impl Iterator for Bits128 {
 
 impl ops::Index<usize> for Bits128 {
     type Output = bool;
+    #[inline(always)]
     fn index(&self, location: usize) -> &bool {
         &Self::BITS[self.at(location) as usize]
     }
