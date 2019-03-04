@@ -3,7 +3,18 @@
 //! # bits128
 //! `bits128` provides a struct that let's you use 128 bits while taking only 128 bits in memory. <br>
 //! if you would use something like `[bool; 128]` it would take 128*8 bits in memory because every bool takes 1 bytes(8bits) <br>
-//! In the future I'll implement an Iterator over the bits so you can iterate over them easily. <br>
+//! You can easily iterate it by looping over the struct or by manually calling `iter()` / `into_iter()`
+//!
+//! # Examples
+//! ```rust
+//! # use bits128::Bits128;
+//! let bits = Bits128::from_dec(1337);
+//! for (bit, c) in bits.enumarate() {
+//!     if bit {
+//!         println!("the {}th bit is on", bit);
+//!     ]
+//! }
+//! ```
 
 
 use core::{fmt, ops};
